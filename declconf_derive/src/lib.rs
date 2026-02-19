@@ -30,14 +30,16 @@ pub fn conf_derivation(input: TokenStream) -> TokenStream {
 fn gen_from_fields_named(struct_name: Ident, fields: FieldsNamed) -> TokenStream {
     let recurse_fields = fields.named.iter().map(|field| {
         let name = &field.ident;
+        let name_str = token_to_string(name);
+
         quote! {
-            #name: std::env::var("#name")?.parse().unwrap()
+            #name: ::declconf::from_env_var(&#name_str)?,
         }
     });
 
     quote! {
         impl #struct_name {
-            pub fn init() -> Result<Self, std::env::VarError> {
+            pub fn init() -> Result<Self, ::declconf::ConfErrors> {
                 Ok(Self {
                     #(#recurse_fields,)*
                 })
@@ -51,3 +53,6 @@ fn gen_from_fields_unnamed(struct_name: Ident, fields: FieldsUnnamed) -> TokenSt
     quote! {}.into()
 }
 
+fn token_to_string<T: quote::ToTokens>(t: &T) -> String {
+    quote!(#t).to_string()
+}

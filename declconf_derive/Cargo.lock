@@ -6,13 +6,6 @@ version = 4
 name = "declconf"
 version = "0.1.0"
 dependencies = [
- "declconf_derive",
-]
-
-[[package]]
-name = "declconf_derive"
-version = "0.1.0"
-dependencies = [
  "quote",
  "syn",
 ]
@@ -44,13 +37,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "test_suite"
-version = "0.1.0"
-dependencies = [
- "declconf",
 ]
 
 [[package]]
