@@ -1,7 +1,7 @@
 use std::{error::Error, fmt::Display, str::FromStr};
 
-#[derive(Debug)]
-pub struct ConfErrors(Vec<ConfError>);
+#[derive(Clone, Debug)]
+pub struct ConfErrors(pub Vec<ConfError>);
 
 impl Display for ConfErrors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -11,18 +11,18 @@ impl Display for ConfErrors {
 
 impl Error for ConfErrors {}
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MissingField {
     pub field_name: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ParseError {
     pub field_name: String,
     pub message: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum ConfError {
     MissingField(MissingField),
     ParseError(ParseError),
@@ -36,9 +36,9 @@ impl Display for ConfError {
 
 impl Error for ConfError {}
 
-pub fn from_env_var<F, E>(name: &String) -> Result<F, ConfError>
+pub fn from_env_var<F, E>(name: &str) -> Result<F, ConfError>
 where
-    F: FromStr<Err = E>,
+    F: FromStr<Err = E> + Clone,
     E: ToString,
 {
     std::env::var(name)

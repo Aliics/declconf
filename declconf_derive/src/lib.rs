@@ -28,21 +28,41 @@ pub fn conf_derivation(input: TokenStream) -> TokenStream {
 }
 
 fn gen_from_fields_named(struct_name: Ident, fields: FieldsNamed) -> TokenStream {
-    let recurse_fields = fields.named.iter().map(|field| {
-        let name = &field.ident;
-        let name_str = token_to_string(name);
+    let (field_names, field_fetchs): (Vec<_>, Vec<_>) = fields
+        .named
+        .iter()
+        .map(|field| {
+            let name = &field.ident;
+            let name_str = token_to_string(name);
 
-        quote! {
-            #name: ::declconf::from_env_var(&#name_str)?,
-        }
-    });
+            let fetch = quote! {
+                let #name = ::declconf::from_env_var(&#name_str)
+            };
+
+            (name, fetch)
+        })
+        .unzip();
 
     quote! {
         impl #struct_name {
             pub fn init() -> Result<Self, ::declconf::ConfErrors> {
-                Ok(Self {
-                    #(#recurse_fields,)*
-                })
+                #(#field_fetchs;)*
+
+                let mut errs = ::declconf::ConfErrors(vec![]);
+
+                #({
+                    if let Err(e) = #field_names.clone() {
+                        errs.0.push(e);
+                    }
+                })*
+
+                if !errs.0.is_empty() {
+                    Err(errs)
+                } else {
+                    Ok(Self {
+                        #(#field_names: #field_names.unwrap(),)*
+                    })
+                }
             }
         }
     }
