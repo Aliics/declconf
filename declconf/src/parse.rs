@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display, str::FromStr};
+use std::{env, error::Error, fmt::Display, str::FromStr};
 
 #[derive(Clone, Debug)]
 pub struct ConfErrors(pub Vec<ConfError>);
@@ -41,7 +41,7 @@ where
     F: FromStr<Err = E> + Clone,
     E: ToString,
 {
-    std::env::var(name)
+    env::var(name)
         .map_err(|_| {
             ConfError::MissingField(MissingField {
                 field_name: name.to_string(),
@@ -54,4 +54,14 @@ where
                 message: e.to_string(),
             })
         })
+}
+
+pub fn from_cli_arg<F, E>(name: &str) -> Result<F, ConfError>
+where
+    F: FromStr<Err = E> + Clone,
+    E: ToString,
+{
+    Err(ConfError::MissingField(MissingField {
+        field_name: name.to_string(),
+    }))
 }
