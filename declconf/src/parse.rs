@@ -1,40 +1,9 @@
-use std::{env, error::Error, fmt::Display, str::FromStr};
+use std::{env, str::FromStr};
 
-#[derive(Clone, Debug)]
-pub struct ConfErrors(pub Vec<ConfError>);
-
-impl Display for ConfErrors {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[{:?}]", self.0)
-    }
-}
-
-impl Error for ConfErrors {}
-
-#[derive(Clone, Debug)]
-pub struct MissingField {
-    pub field_name: String,
-}
-
-#[derive(Clone, Debug)]
-pub struct ParseError {
-    pub field_name: String,
-    pub message: String,
-}
-
-#[derive(Clone, Debug)]
-pub enum ConfError {
-    MissingField(MissingField),
-    ParseError(ParseError),
-}
-
-impl Display for ConfError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
-
-impl Error for ConfError {}
+use crate::{
+    ArgMap,
+    error::{ConfError, MissingField, ParseError},
+};
 
 pub fn from_env_var<F, E>(name: &str) -> Result<F, ConfError>
 where
@@ -48,20 +17,31 @@ where
             })
         })?
         .parse()
-        .map_err(|e: E| {
-            ConfError::ParseError(ParseError {
-                field_name: name.to_string(),
-                message: e.to_string(),
-            })
-        })
+        .map_err(|e: E| err_to_parse_err::<F, E>(name, e))
 }
 
-pub fn from_cli_arg<F, E>(name: &str) -> Result<F, ConfError>
+pub fn from_cli_arg<F, E>(arg_map: ArgMap, name: &str) -> Result<F, ConfError>
 where
     F: FromStr<Err = E> + Clone,
     E: ToString,
 {
-    Err(ConfError::MissingField(MissingField {
+    match arg_map.get(name) {
+        Some(Some(value)) => value
+            .parse()
+            .map_err(|e: E| err_to_parse_err::<F, E>(name, e)),
+        _ => Err(ConfError::MissingField(MissingField {
+            field_name: name.to_string(),
+        })),
+    }
+}
+
+fn err_to_parse_err<F, E>(name: &str, e: E) -> ConfError
+where
+    F: FromStr<Err = E> + Clone,
+    E: ToString,
+{
+    ConfError::ParseError(ParseError {
         field_name: name.to_string(),
-    }))
+        message: e.to_string(),
+    })
 }
