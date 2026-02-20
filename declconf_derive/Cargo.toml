@@ -2,6 +2,18 @@
 name = "declconf_derive"
 version = "0.1.0"
 edition = "2024"
+repository = "https://github.com/Aliics/declconf"
+keywords = [
+  "declarative", 
+  "configuration",
+  "env", 
+  "environment", 
+  "cli",
+  "command-line"
+]
+description = "Declarative Configuration"
+readme = "README.md"
+license = "MIT"
 
 [lib]
 proc-macro = true
