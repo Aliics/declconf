@@ -1,6 +1,6 @@
 # declconf
 
-_Decl_arative _Conf_iguration for Rust.
+*Decl*arative *Conf*iguration for Rust.
 Heavily leverages `proc_macro_derive` and macros to make building configuration objects simple.
 
 ```rs
@@ -24,3 +24,10 @@ TestConf::init()?;
 - Environment Variable and CLI arg support.
 - Compile-time errors for bad setup.
 - `FromStr` support for config types.
+
+## Future Features
+
+- Nesting
+- `Option` support
+- Defaults
+- JSON/TOML loading
