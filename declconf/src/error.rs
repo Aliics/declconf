@@ -1,5 +1,15 @@
+//! Configuration errors that can occur during runtime.
+//!
+//! Centered around the `ConfErrors` type which is an aggregate of
+//! errors that occured when constructing the configuration data.
+
 use std::{error::Error, fmt::Display};
 
+/// Aggregate of configuration errors that occurred when building
+/// the configuration data. This will be accumulated so that when
+/// programs start up, all the configuration that is missing or
+/// malformed is all given up front. Prevents the usual flow of
+/// configuration whack-a-mole.
 #[derive(Clone, Debug)]
 pub struct ConfErrors(pub Vec<ConfError>);
 

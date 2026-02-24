@@ -1,7 +1,12 @@
+//! Command-line argument functionality.
+
 use std::{collections::HashMap, env};
 
 pub type ArgMap = HashMap<String, Option<String>>;
 
+/// Initialize a simple map of arguments from the command line.
+/// This is used to pre-compute key-value pairs for later use by
+/// the `Conf` derive macro.
 pub fn build_arg_map() -> ArgMap {
     build_arg_map_from_vec(env::args().collect())
 }
